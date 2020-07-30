@@ -1,0 +1,14 @@
+{
+  "name": "Thermistor",
+  "version": "0.1.0",
+  "description": "Simple NTC thermistor library, that decouples acquisition method from main thermistor class",
+  "license": "MIT",
+  "keywords": [ "arduino", "thermistor", "ads1115" ],
+  "frameworks" : [ "arduino" ],
+  "platforms": [ "espressif32" ],
+  "dependencies": [ "Adafruit ADS1X15" ],
+  "authors": {
+    "name": "Spiros Papadimitriou",
+    "url": "https://github.com/spapadim"
+  }
+}
