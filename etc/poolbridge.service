@@ -1,0 +1,25 @@
+# User unit file
+#
+# First, make sure you have
+#    sudo loginctly --enable-linger <username>
+# and then install into .config/systemd/user/poolbridge.service
+# and enable with
+#    systemctl --user enable poolbridge
+#    systemctl --user start poolbridge
+
+[Unit]
+Description=MQTT to InfluxDB bridge
+After=network.target network-online.target
+
+[Service]
+WorkingDirectory=/tmp
+ExecStart=/usr/bin/python3 /home/spapadim/opt/mqtt/poolbridge.py
+SyslogIdentifier=poolbridge
+Restart=always
+RestartSec=20s
+PrivateTmp=true
+NoNewPrivileges=true
+KillMode=process
+
+[Install]
+WantedBy=default.target
