@@ -17,6 +17,9 @@ void MQTT::begin(Scheduler* sched) {
   _clientId = MQTT_CLIENT_ID_PREFIX;
   _clientId += String(random(0xffff), HEX);
 
+  // Display off (no connection attempt yet)
+  _display.mqtt(STATUS_DISPLAY_NONE);
+
   // Add all tasks; need to explicitly call ::connect() to get things started
   sched->addTask(_connCheckTask);
   sched->addTask(_connectTask);
@@ -97,7 +100,7 @@ void MQTT::_connCheckCb() {
 
   if (!_mqttClient.connected()) {
     DEBUG_MSG("MQTT detected disconnection");
-    _display.mqtt(false);
+    _display.mqtt(STATUS_DISPLAY_INACTIVE);
     connect();
   }
 }
@@ -109,7 +112,7 @@ void MQTT::_connectCb() {
 
   if (count == 0) {
      // Disable connection check task (if necessary) and update display
-    _display.mqtt(false);
+    _display.mqtt(STATUS_DISPLAY_ACTIVATING);
     if (_connCheckTask.isEnabled()) {
       _connCheckTask.disable();
     }
@@ -119,15 +122,13 @@ void MQTT::_connectCb() {
   if (!_mqttClient.connect(_clientId.c_str())) {
     DEBUG_MSG("MQTT connect failed, rc=%d", _mqttClient.state());
 
-    if (count < _connectTask.getIterations()) {
-      _display.mqtt(count % 2 == 1);  // Blink indicator; starts at off if first iteration fails (".. == 1")
-    } else {
-      _display.mqtt(false);  // Last attempt failed, make sure indicator is off
+    if (count == _connectTask.getIterations() - 1) {
+      _display.mqtt(STATUS_DISPLAY_INACTIVE);  // Last attempt failed, update indicator accordingly
     }
   } else {
     DEBUG_MSG("MQTT connected as %s", _clientId.c_str());
 
-    _display.mqtt(true);
+    _display.mqtt(STATUS_DISPLAY_ACTIVE);
     _connectTask.disable();
 
     // Subscribe to all registered topic subscriptions

@@ -20,8 +20,8 @@ void WiFiManager::begin(Scheduler* sched) {
   WiFi.setAutoReconnect(false);
   WiFi.mode(WIFI_STA);
 
-  // Display off (disconnected)
-  _display.wifi(false);
+  // Display off (no connection attempt yet)
+  _display.wifi(STATUS_DISPLAY_NONE);
 
   // Add all tasks; need to be explicitly enable by calling eg ::connect()
   sched->addTask(_connCheckTask);
@@ -56,7 +56,7 @@ void WiFiManager::_connCheckCb() {
   if (!WiFi.isConnected()) {
     DEBUG_MSG("WiFiManager detected disconnection; calling handlers");
 
-    _display.wifi(false);
+    _display.wifi(STATUS_DISPLAY_INACTIVE);
     // Invoke _disconnected callbacks (remember, connection check task
     //  is only started upon a successful connection earlier)
     for (auto it = _disconnectHandlers.begin();  it != _disconnectHandlers.end();  it++) {
@@ -75,7 +75,7 @@ void WiFiManager::_wifiConnectCb() {
 
   if (count == 0) {
     // Disable connection check task (if necessary) and update display
-    _display.wifi(false);
+    _display.wifi(STATUS_DISPLAY_ACTIVATING);
     if (_connCheckTask.isEnabled()) {
       _connCheckTask.disable();
     }
@@ -88,14 +88,16 @@ void WiFiManager::_wifiConnectCb() {
   }
 
   if (WiFi.status() != WL_CONNECTED) {
-    _display.wifi(count % 2 == 0);  // Blink...
+    if (count == _wifiConnectTask.getIterations() - 1) {
+      _display.wifi(STATUS_DISPLAY_INACTIVE);  // Failed to connect, make sure indicator reflects this
+    }
   } else {
     DEBUG_MSG("WiFi connected");
     String ip = WiFi.localIP().toString();
     DEBUG_MSG("IP address: %s", ip.c_str());
 
     // Update display
-    _display.wifi(true);
+    _display.wifi(STATUS_DISPLAY_ACTIVE);
 
     DEBUG_MSG("WiFiManager (re-)connected; calling handlers");
     // Invoke _connected callbacks
