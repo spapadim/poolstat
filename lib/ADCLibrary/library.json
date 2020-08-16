@@ -1,0 +1,13 @@
+{
+  "name": "ADCLibrary",
+  "version": "0.1.0",
+  "description": "Simple library with basic ADC port abstraction wrapper",
+  "license": "MIT",
+  "keywords": [ "arduino", "adc" ],
+  "frameworks" : [ "arduino" ],
+  "platforms": [ "espressif32" ],
+  "authors": {
+    "name": "Spiros Papadimitriou",
+    "url": "https://github.com/spapadim"
+  }
+}

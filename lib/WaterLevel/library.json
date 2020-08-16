@@ -1,0 +1,14 @@
+{
+  "name": "WaterLevel",
+  "version": "0.1.0",
+  "description": "Simple quantized water level sensor, using resistive ladder",
+  "license": "MIT",
+  "keywords": [ "arduino", "sensor", "water", "level", "water-level" ],
+  "frameworks" : [ "arduino" ],
+  "platforms": [ "espressif32" ],
+  "dependencies": [ "ADCLibrary" ],
+  "authors": {
+    "name": "Spiros Papadimitriou",
+    "url": "https://github.com/spapadim"
+  }
+}
