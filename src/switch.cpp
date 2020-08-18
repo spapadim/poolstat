@@ -42,9 +42,7 @@ void Switch::set_on(bool on) {
   DEBUG_MSG("Controller::set_switch_on(%d)", int(on));
 
   // Invoke any registered callbacks
-  for (auto it = _callbacks.begin();  it != _callbacks.end();  it++) {
-    (*it)(on ? SWITCH_EVENT_ON : SWITCH_EVENT_OFF);
-  }
+  signal.emit(on ? EVENT_ON : EVENT_OFF);
 }
 
 void Switch::delayed_off(int sec) {

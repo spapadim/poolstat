@@ -41,6 +41,8 @@ void setup() {
   mqtt.connect();  // Ditto, but would be better to start after wifi connects?
 
   led.begin(&sched);  // TODO - Remove after MQTT trial
+
+  led.signal.connect([](Switch::event_t evt){ DEBUG_MSG("LED callback, evt %d", (int)evt); });
 }
 
 void loop() {

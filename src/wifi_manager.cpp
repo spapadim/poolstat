@@ -40,16 +40,6 @@ void WiFiManager::connect() {
     _wifiConnectTask.restart();
 }
 
-void WiFiManager::add_handler(wifi_event_t event, WiFiCallback callback) {
-  if (event == WIFI_EVENT_CONNECTED) {
-    _connectHandlers.push_back(callback);
-  } else if (event == WIFI_EVENT_DISCONNECTED) {
-    _disconnectHandlers.push_back(callback);
-  } else {
-    DEBUG_MSG("Whoops; unknown wifi event type!");
-  }
-}
-
 void WiFiManager::_connCheckCb() {
   DEBUG_MSG("WiFiManager::_connCheckCb()");
 
@@ -59,9 +49,7 @@ void WiFiManager::_connCheckCb() {
     _display.wifi(STATUS_DISPLAY_INACTIVE);
     // Invoke _disconnected callbacks (remember, connection check task
     //  is only started upon a successful connection earlier)
-    for (auto it = _disconnectHandlers.begin();  it != _disconnectHandlers.end();  it++) {
-      (*it)(WIFI_EVENT_DISCONNECTED);
-    }
+    disconnectSignal.emit(EVENT_DISCONNECTED);
 
     // Initiate (re-)connection
     connect();
@@ -101,9 +89,7 @@ void WiFiManager::_wifiConnectCb() {
 
     DEBUG_MSG("WiFiManager (re-)connected; calling handlers");
     // Invoke _connected callbacks
-    for (auto it = _connectHandlers.begin();  it != _connectHandlers.end();  it++) {
-      (*it)(WIFI_EVENT_CONNECTED);
-    }
+    connectSignal.emit(EVENT_CONNECTED);
 
     // Finally, disable ourselves and (re-)enable connection check task
     _connCheckTask.enable();

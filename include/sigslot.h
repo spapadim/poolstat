@@ -62,6 +62,12 @@ public:
   using slot_t = std::function<void(Args...)>;
 
   // XXX - We should make internals opaque, eventually..?
+  // XXX - Connections may silently fail after 127 connections 
+  //   (specifically, disconnect may delete wrong callback)
+  // XXX - Somewhat related (and more of a real concern):
+  //   connection_t values are not globally unique (ie., if a
+  //   connection ID is mistakenly used on a *different* signal,
+  //   confusing bugs will ensue...)
   struct connection_t {
     bool one_shot : 1;
     uint8_t id : 7;
@@ -76,7 +82,6 @@ public:
     return _slots.size();
   }
 
-  // XXX - May silently fail after 127 connections...
   connection_t connect(const slot_t&& slot, bool one_shot = false) {
     connection_t conn = { one_shot, _nextConnectionId };
     _slots.emplace_back(conn, slot);

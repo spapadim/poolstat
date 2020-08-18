@@ -9,13 +9,15 @@
 #include <vector>
 
 #include "string_util.h"
+#include "sigslot.h"
 
-typedef enum { SWITCH_EVENT_OFF, SWITCH_EVENT_ON } switch_event_t;
-
-typedef std::function<void (switch_event_t)> SwitchCallback;
 
 class Switch {
 public:
+  typedef enum { EVENT_OFF = 0, EVENT_ON } event_t;
+  using signal_t = ch::signal<event_t>;
+  using callback_t = signal_t::slot_t;
+
   static constexpr int DELAYED_OFF_DISABLE = -1;
 
   static constexpr const char* MQTT_TOPIC_SUFFIX_STATE = "/state";
@@ -58,10 +60,6 @@ public:
 
   void begin(Scheduler* sched, bool on = false);
 
-  inline void add_handler(SwitchCallback callback) {
-    _callbacks.push_back(callback);
-  }
-
   // Switch control
   inline bool is_on()  { 
     return digitalRead(_pin) == (_activeHigh ? HIGH : LOW);
@@ -92,6 +90,7 @@ public:
   }
   void set_default_delayed_off(int sec, bool reset_if_pending = true);
 
+  signal_t signal;
 private:
   const int _pin;
 
@@ -105,7 +104,6 @@ private:
   const bool _activeHigh;  // aka. NO (normally off / open)
 
   Task _delayedOffTask;
-  std::vector<SwitchCallback> _callbacks;
 
   void _mqttCb(const char* topic, String payload);
 };
