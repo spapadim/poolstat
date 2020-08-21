@@ -19,20 +19,8 @@ private:
   Thermistor& _thermistor;
 };
 
-// Trivial subclass that only defines a convenience constructor (and hides the *SensorPort wrapper class)
-class ThermistorSensor : public Sensor {
-public:
-  ThermistorSensor(
-    Thermistor& thermistor, unsigned long update_interval_millis,
-    MQTT& mqtt, const char* mqtt_topic
-  ) :
-    Sensor(_port, update_interval_millis, mqtt, mqtt_topic),
-    _port(thermistor)
-  { }
-
-private:
-  ThermistorSensorPort _port;
-};
+// Trivial subclass that hides the ThermistorSensorPort wrapper class
+using ThermistorSensor = Sensor<ThermistorSensorPort, Thermistor& >;
 
 // Trivial subclass with convenience constructor (no overrides or extensions)
 class Thermostat : public Controller {
@@ -40,7 +28,8 @@ public:
   Thermostat(MQTT& mqtt, ThermistorSensor& temperatureSensor, Switch& heaterRelay) :
     Controller(
       mqtt,
-      THERMOSTAT_SETPOINT_POOL_DEFAULT,
+      MQTT_TOPIC_THERMOSTAT_SETPOINT,
+      THERMOSTAT_SETPOINT_DEFAULT,
       MQTT_TOPIC_THERMOSTAT_STATE, MQTT_TOPIC_THERMOSTAT_CONTROL,
       heaterRelay, temperatureSensor,
       THERMOSTAT_UPDATE_INTERVAL_SEC * 1000)

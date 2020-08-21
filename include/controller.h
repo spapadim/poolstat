@@ -24,7 +24,7 @@ public:
     const char* const mqtt_setpoint_topic,
     double initial_setpoint,
     const char* const mqtt_state_topic, const char* const mqtt_control_topic,
-    Switch& switch_, Sensor& sensor,
+    Switch& switch_, SensorBase& sensor,
     double setpoint_undershoot = -1.0, double setpoint_overshoot = -1.0,
     unsigned long control_interval_millis = DEFAULT_CONTROL_INTERVAL_MILLIS) :
     _mqtt(mqtt),
@@ -66,7 +66,7 @@ private:
   const String _mqttControlTopic;
 
   Switch& _switch;
-  Sensor& _sensor;
+  SensorBase& _sensor;
 
   double _setpoint;
   const double _setpointUndershoot, _setpointOvershoot;

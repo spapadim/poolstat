@@ -19,20 +19,8 @@ private:
   WaterLevelSensor& _sensor;
 };
 
-// Trivial subclass that only defines a convenience constructor (and hides the *SensorPort wrapper class)
-class WaterSensor : public Sensor {
-public:
-  WaterSensor(
-    WaterLevelSensor& waterLevelSensor, unsigned long update_interval_millis,
-    MQTT& mqtt, const char* mqtt_topic
-  ) :
-    Sensor(_port, update_interval_millis, mqtt, mqtt_topic),
-    _port(waterLevelSensor)
-  { }
-
-private:
-  WaterSensorPort _port;
-};
+// Trivial subclass that hides the WaterSensorPort wrapper class
+using WaterSensor = Sensor<WaterSensorPort, WaterLevelSensor& >;
 
 // Trivial subclass with convenience constructor (no overrides or extensions)
 class Aquastat : public Controller {
@@ -40,6 +28,7 @@ public:
   Aquastat(MQTT& mqtt, WaterSensor& waterLevel, Switch& waterValve) :
     Controller(
       mqtt,
+      MQTT_TOPIC_AQUASTAT_SETPOINT,
       AQUASTAT_SETPOINT_DEFAULT,
       MQTT_TOPIC_AQUASTAT_STATE, MQTT_TOPIC_AQUASTAT_CONTROL,
       waterValve, waterLevel,

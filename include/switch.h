@@ -91,6 +91,7 @@ public:
   void set_default_delayed_off(int sec, bool reset_if_pending = true);
 
   signal_t signal;
+
 private:
   const int _pin;
 
